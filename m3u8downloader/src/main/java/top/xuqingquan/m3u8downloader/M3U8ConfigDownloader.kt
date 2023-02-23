@@ -170,14 +170,7 @@ internal object M3U8ConfigDownloader {
                 file.copyTo(realM3U8File)
             }
             val m3u8ListFile = File(path, "m3u8.list")
-            list.forEach {
-                val ts = if (!it.startsWith("/")) {
-                    url.substring(0, url.lastIndexOf("/") + 1) + it
-                } else {
-                    "${uri.scheme}://${uri.host}$it"
-                }
-                m3u8ListFile.appendText("$ts\n")
-            }
+
             val localPlaylist = File(path, "localPlaylist.m3u8")
             file.readLines().forEach {
                 var str = it
@@ -187,8 +180,45 @@ internal object M3U8ConfigDownloader {
                     } else {
                         ".ts/$it"
                     }
+                }else if(str.contains("KEY")){//此处获取KEY信息，并且下载到本地目录
+                    //#EXT-X-KEY:METHOD=AES-128,URI="key.key",IV=XXXXXXX 根据此格式仅需要解析出URI信息进行替换
+                    var arr = str.split(",")
+                    var key = ""
+                    for (na in arr){
+                        if (na.startsWith("URI"))
+                        {
+                            key = na.substring(5,na.length -1)
+                            break
+                        }
+                    }
+                    if (key.isNotEmpty()) {
+                        str = str.replace(
+                            key, if (key.contains("/")) {
+                                ".ts${key.substring(key.lastIndexOf("/"))}"
+                            } else {
+                                ".ts/$key"
+                            }
+                        )
+
+                        val keyUrl = if (!key.startsWith("/")) {
+                            url.substring(0, url.lastIndexOf("/") + 1) + key
+                        } else {
+                            "${uri.scheme}://${uri.host}$key"
+                        }
+                        m3u8ListFile.appendText("$keyUrl\n")//此处先下载key，方便边下边播功能
+                    }
+
                 }
                 localPlaylist.appendText("$str\n")
+            }
+            //开始追加ts文件下载地址
+            list.forEach {
+                val ts = if (!it.startsWith("/")) {
+                    url.substring(0, url.lastIndexOf("/") + 1) + it
+                } else {
+                    "${uri.scheme}://${uri.host}$it"
+                }
+                m3u8ListFile.appendText("$ts\n")
             }
             Log.d(TAG, "start--->$entity")
         } else {//重定向

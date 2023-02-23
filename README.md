@@ -13,6 +13,7 @@
 开始撸代码之前，先预备一下相关知识，M3U8视频其实主要就一个文件，文件里面写明了视频片段ts的地址，我们获得这个m3u8文件就可以通过文件内的内容，分析出世纪的ts，然后下载相对应的ts文件，就可以做到下载m3u8视频了
 ### 最直接的m3u8文件
 > [https://135zyv5.xw0371.com/2018/10/29/X05c7CG3VB91gi1M/playlist.m3u8](https://135zyv5.xw0371.com/2018/10/29/X05c7CG3VB91gi1M/playlist.m3u8)
+新增KEY以及IV示例在下方EXT-X-KEY处
 这个链接的m3u8文件下载后内容如下
 ```
 #EXTM3U
@@ -20,6 +21,7 @@
 #EXT-X-MEDIA-SEQUENCE:0
 #EXT-X-ALLOW-CACHE:YES
 #EXT-X-TARGETDURATION:19
+#EXT-X-KEY:METHOD=AES-128,URI="key.key",IV=XXXXXXX
 #EXTINF:12.640000,
 out000.ts
 #EXTINF:7.960000,
