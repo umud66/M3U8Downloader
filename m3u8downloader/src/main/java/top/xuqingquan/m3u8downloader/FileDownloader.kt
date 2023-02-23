@@ -50,6 +50,27 @@ object FileDownloader {
     private val waitList = arrayListOf<VideoDownloadEntity>()//等待下载的队列
     private var wait = false//m3u8等待状态
 
+    //删除
+    fun Delete(data:VideoDownloadEntity){
+        rmDirs(getDownloadPath(data.originalUrl))
+    }
+
+    private fun rmDirs(file: File): Boolean {
+        val fileArr = file.listFiles()
+        if (fileArr != null) {
+            for (files in fileArr) {
+                if (files.isDirectory) {
+                    rmDirs(files)
+                } else {
+                    files.delete()
+                }
+            }
+        }
+        return file.delete()
+    }
+
+
+
     /**
      * 停止全部任务
      */
